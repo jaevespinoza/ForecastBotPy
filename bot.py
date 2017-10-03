@@ -1,5 +1,6 @@
 import discord
 from datetime import datetime
+import time
 import random
 
 client = discord.Client()
@@ -8,7 +9,7 @@ global nowtime, previous, currentweather, firstime, currentime, weather, timeofd
 
 def setup():
     global nowtime, previous, currentweather, firstime, currentime, weather, timeofday
-    nowtime = datetime.now().time()
+    nowtime = time.time()
     previous = 0
     currentweather = random.randint(0, 9)
     firstime = True
@@ -31,12 +32,14 @@ async def on_message(message):
     global nowtime, previous, currentweather, firstime, currentime, weather, timeofday
     nowtime = nowtime
     if message.content.startswith("!forecast"):
-        timenow = datetime.now().time()
-        if timenow.second - nowtime.second > 86400 or firstime:
+        timenow = time.time()
+        await client.send_message(message.channel, timenow - nowtime)
+        if timenow - nowtime > 86400 or firstime:
             previous = currentime
             await client.send_message(message.channel, 'New weather report:\n' + 'Time of day: ' + timeofday[currentime] + '\nWeather: ' + weather[currentweather])
             currentime += 1
             firstime = False
+            nowtime = timenow
             if currentime > 2:
                 currentime = 0
                 currentweather = random.randint(0, 9)
